@@ -2,8 +2,11 @@
 
 Bonjour bienvenu dans notre jeu Bomb Journée!
 Il s'agit ici du célèbre jeu Bomberman mais ici codé en python via la librairie Pygame.
+Notre jeu est jouable à 2 joueurs sur le même clavier
+Votre objectif est de toucher votre adversaire à l'aide d'explosions de bombes ou qu'il se fasse toucher par les fantomes.
+Pour remporter la victoire, c'est simple, obtenez 5 points!!
 
-
+Bonne chance
 
 Contenu du projet:
 - code python du jeu (Bomb journee.py)
@@ -17,7 +20,7 @@ Contenu du projet:
 
 
 Procédure d'installation:
- - pré-requi: pour pouvoir jouer à notre jeu, il est nécessaire de posséder un logiciel permettant de coder et de lire des programme python comme par exemple eduPython ou encore Visual Studio Code
+ - pré-requi: pour pouvoir jouer à notre jeu, il est nécessaire de posséder un logiciel permettant de coder et de lire des programmes python et surtout comprendre la librairie pygame comme par exemple eduPython ou encore Visual Studio Code
 
   - installation: 
  Pour cela vous devez télécharger TOUS les fichiers présent dans le repository game dans un même dossier de votre machine.
