@@ -9,10 +9,10 @@ from PIL import Image
 from PIL import ImageTk
 from random import*
 
-def menu(): #creation du menu principale
-    menu=Tk()# tkinter permet de faire le menu
+def menu():    #creation du menu principale
+    menu=Tk()   # tkinter permet d'initialiser une fenetre
     menu.title("Bomb Journee")
-    menu.minsize(480,320)                           #dans cette partie la nous nous occupons de la taille, couleurs et emplacements du titre
+    menu.minsize(480,320)            #dans cette partie la nous nous occupons de la taille, couleurs et emplacements du titre
     menu.resizable(width=False,height=False)
     menu.configure(bg="white")
     bombjournee=Image.open("menu.jpg")
@@ -21,12 +21,13 @@ def menu(): #creation du menu principale
     bombjournee2.pack()
     espace=Frame(menu,height=75,borderwidth=1,bg="white")
     espace.pack()
-    def quitter():  #creation de la fonction quitter lorsque on quitte la page
+    def quitter():        #creation de la fonction quitter lorsque on appuie sur la croix rouge (lance le jeu directement après)
         menu.destroy()
     lancer=Button(menu,text="Lancer le jeu",command=quitter,bg="dodgerblue",fg="white",width=50,height=1)
-    lancer.pack()
+    lancer.pack()       # .pack() permet de placer dans l'ordre indiqué les Frame(boutton ou autres créés au dessus)
     espace.pack()
-    def menu2(): #il s'agit de la partie des instructions du jeux
+
+    def menu2():    #il s'agit de la fenetre qui souvre lorsqu'on clique sur controle (indique les commandes pour jouer au jeu)
         menu.destroy()
         menu2=Tk()
         menu2.title("Contrôles")
@@ -35,20 +36,22 @@ def menu(): #creation du menu principale
         menu2.configure(bg="white")
         controle=Image.open("menu2.jpg")
         photo2=ImageTk.PhotoImage(controle)
-        controle2=Label(menu2,image=photo2,bg="white")
+        controle2=Label(menu2,image=photo2,bg="white")                                                  #même procédé que la première fenetre du menu d'accueil
         controle2.pack()
         menu2.mainloop()
     cmd=Button(menu,text="Contrôles",command=menu2,bg="dodgerblue",fg="white",width=50,height=1)
     espace2=Frame(menu,height=10,borderwidth=1,bg="white")
     espace2.pack()
     cmd.pack()
-    menu.mainloop()
-menu()
+    menu.mainloop() #affiche la fentre principale (menu)
+menu() # appel la fonction menu juste créée au dessus
 
 
-# Initialisation des variables
+# Initialisation des variables:
+
+
 fenetre = pygame.display.set_mode( (580,630) ) # Définition de la taille du terrain de jeu
-mur1=pygame.Rect(0, 0, 580, 30)
+mur1=pygame.Rect(0, 0, 580, 30)             # initailisation des 4 murs présent autour du terrain (abscisse, ordonnée, longueur, largeur)
 mur2=pygame.Rect(0, 550, 580, 40)
 mur3=pygame.Rect(0, 0, 30, 580)
 mur4=pygame.Rect(550, 0, 30, 580)
@@ -60,11 +63,18 @@ coord_obstacle=[(70,70),(70,150),(70,230),(70,310),(70,390),(70,470),
 (310,70),(310,150),(310,230),(310,310),(310,390),(310,470),
 (390,70),(390,150),(390,230),(390,310),(390,390),(390,470),
 (470,70),(470,150),(470,230),(470,310),(470,390),(470,470)]
-pygame.display.set_caption("Terrorist Tycoon") # Définit le titre de la fenêtre
+
+hitbox_obstacle=[] #liste qui va contenir les hitbox de tous les obstacles fixes
+
+for i in range (0,len(coord_obstacle)):  # associe à chaque obstacle une hitbox carré de taille 40 sur 40 pixels (en dessinant un rectancgle autour)
+     	obstacle=pygame.Rect(coord_obstacle[i], (40,40))
+     	hitbox_obstacle.append(obstacle)
+
+pygame.display.set_caption("Terrorist Tycoon") # Définit le titre de la fenêtre du jeu
 
 #creation du joueur 1 ainsi que sa position initiale avec sa hitbox
 oussama_photo=pygame.image.load("BenLaden.png")
-oussama=pygame.transform.scale(oussama_photo, (30,30))
+oussama=pygame.transform.scale(oussama_photo, (30,30))  #modifie le format de la photo ici 30pixels sur 30 pixel
 oussama_position=(30,30)
 oussama_hitbox=pygame.Rect((oussama_position), (30,30))
 
@@ -93,8 +103,7 @@ fantome3_position=(355,355)
 fantome3_hitbox=pygame.Rect((fantome3_position), (30,30))
 
 
-#le positionnement de la bombe au depart est a l'exterieur du terrain dans des coordonnées inconnues
-# puis par la suite on la deplacera
+#le positionnement de la bombe au depart est a l'exterieur du terrain
 bombe_position=(-40, -40)
 bombe_photo=pygame.image.load("bomb.png")
 bombe=pygame.transform.scale(bombe_photo, (40,40)) # on redefinie le format de l'image 40 pix sur 40 pix
@@ -104,10 +113,8 @@ bombe_hitbox=pygame.Rect((bombe_position), (40,40))#hitbox associé a la bombe p
 bombe2_position=(-40, -40)
 bombe2_photo=pygame.image.load("bomb.png")
 bombe2=pygame.transform.scale((bombe2_photo), (40,40))
-bombe2_hitbox=pygame.Rect((bombe2_position), (40,40))
+bombe2_hitbox=pygame.Rect((bombe2_position), (40,40)) #hitbox associé a la bombe pour le joueur 2
 
-
-hitbox_obstacle=[] #liste qui va contenir les hitbox de tous les obstacles fixes
 
 touchesPressees = pygame.key.get_pressed()
 
@@ -117,63 +124,58 @@ debut=time.time()
 debut2=time.time()
 
 
-ancien=(-1000,0)
+ancien=(-1000,0) # variables qui nous seront utile plus tard pour la pose des bombes des 2 joueurs
 ancien2=(-1000,0)
 
-cri_oussama=pygame.mixer.Sound("7000.wav")
+cri_oussama=pygame.mixer.Sound("7000.wav") # initalisation des variable utile pour lancer un son quand le joueur en question se fait toucher
 cri_bush=pygame.mixer.Sound("13405.wav")
 
-points1=0
+# initialisation des variables pour le systeme de points:
+points1=0             # nombre de points au départ
 points2=0
-arial24 = pygame.font.SysFont("arial",24)
-score_J1 = arial24.render("SCORE J1 : "+str(points1),True,pygame.Color(0,0,255))
-score_J2 = arial24.render("SCORE J2 : "+str(points2),True,pygame.Color(255,0,0))
+arial24 = pygame.font.SysFont("arial",24)     # taille et type de police qui sera utilser dans tous ce qui est affichage de texte durant la phase de jeu
 
 
-for i in range (0,len(coord_obstacle)):
-     	obstacle=pygame.Rect(coord_obstacle[i], (40,40))
-     	hitbox_obstacle.append(obstacle)
-
-
-feu_rect_vertical=pygame.Rect((bombe_position[0], bombe_position[1]),(40,40))
-feu_rect_horizontal=pygame.Rect((bombe_position[0], bombe_position[1]),(40,40))
-feu_rect_vertical2=pygame.Rect((bombe2_position[0]-5, bombe2_position[1]-55),(40,140))
-feu_rect_horizontal2=pygame.Rect((bombe2_position[0]-55, bombe2_position[1]-5),(140,40))
-
-winJ1= arial24.render("Oussama (J1) a gagné",True,pygame.Color(0,0,255))
+winJ1= arial24.render("Oussama (J1) a gagné",True,pygame.Color(0,0,255)) # variable qui va permettre d'afficher le texte en question selon le joueur lorsqu'il gagne
 winJ2=arial24.render("Bush (J2) a gagné",True, pygame.Color(255,0,0))
 
-def dessiner(): # Procédure d'affichage du serpent
+
+
+def dessiner(): # Procédure d'affichage du terrain
     global fenetre, continuer, obstacle, bush_hitbox, dernièretouche, touchePressees, start, debut2,winJ1,winJ2
-    fenetre.fill( (96, 96, 96) )
+    fenetre.fill( (96, 96, 96) )         # couleur du background de la fenetre (ici gris)
+
+    # dessin des mur avec leur couleur:
     pygame.draw.rect(fenetre, (253, 241, 184), mur1)
     pygame.draw.rect(fenetre, (253, 241, 184), mur2)
     pygame.draw.rect(fenetre, (253, 241, 184), mur3)
     pygame.draw.rect(fenetre, (253, 241, 184), mur4)
+
+    #systeme de point qui va s'afficher en fonction de la police défini avant
     score_J1 = arial24.render("SCORE J1 : "+str(points1),True,pygame.Color(0,0,200))
     score_J2 = arial24.render("SCORE J2 : "+str(points2),True,pygame.Color(230,0,0))
-    fenetre.blit(score_J1,(10,600))
+    fenetre.blit(score_J1,(10,600)) #.blit permet de disposer ici la variable score_J1 (qui est du texte) sur la fenetre de jeu selon les cordonnées indiqué (10 en abscisse en 600 en ordonnée)
     fenetre.blit(score_J2,(400,600))
 
-    for i in range (0,len(coord_obstacle)):
+    for i in range (0,len(coord_obstacle)): # dessine tous les obstacles en bleu (défini au dessus par la liste d'obstacle)
          obstacle=pygame.Rect(coord_obstacle[i], (40,40))
          pygame.draw.rect(fenetre, (115, 194, 251),obstacle)
 
 
     if points1==5:
-        fenetre.blit(winJ1,(170,275))
+        fenetre.blit(winJ1,(170,275))  # affiche le message de victoire selon les coordonnées indiquée au boute de 5 points
 
 
     if points2==5:
         fenetre.blit(winJ2,(200,275))
 
-    pygame.display.flip()
+    pygame.display.flip()      # cette commande permet de mettre à jour l'affichage de la fenetre pygame du jeu (rafraichissement)
 
 
 def personnage():
     global fenetre, oussama, bombe, bombe2, start
     for event in pygame.event.get():
-        if event.type == pygame.QUIT: # Permet de gérer un clic sur le bouton de fermeture de la fenêtre
+        if event.type == pygame.QUIT: # Permet de gérer un clic sur le bouton de fermeture de la fenêtre --<> le jeu s'arrete
             continuer = 0
     fenetre.blit(oussama, oussama_position)
     fenetre.blit(bush,bush_position)
@@ -296,104 +298,56 @@ while continuer:
 
 # déplacement fantome 1:
      if fantome_position[1]>35 and fantome_position [0]==35:
-         	 test_fantome_position=pygame.Rect((fantome_position[0], fantome_position[1] - 5),(30,30))
-         	 if test_fantome_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome_position=(fantome_position[0] , fantome_position[1]+0.001)
-         	 else:
-                  fantome_position=(fantome_position[0] , fantome_position[1] - 5 )
-                  fantome_hitbox=pygame.Rect((fantome_position),(30,30))
+            fantome_position=(fantome_position[0] , fantome_position[1] - 5 )
+            fantome_hitbox=pygame.Rect((fantome_position),(30,30))
 
      elif fantome_position[0]<515 and fantome_position [1]==35:
-         	 test_fantome_position=pygame.Rect((fantome_position[0] + 5, fantome_position[1]),(30,30))
-         	 if test_fantome_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome_position=(fantome_position[0] - 0.001, fantome_position[1])
-         	 else:
-                  fantome_position=(fantome_position[0] + 5 , fantome_position[1] )
-                  fantome_hitbox=pygame.Rect((fantome_position),(30,30))
+            fantome_position=(fantome_position[0] + 5 , fantome_position[1] )
+            fantome_hitbox=pygame.Rect((fantome_position),(30,30))
 
      elif fantome_position[1]<515 and fantome_position[0]==515:
-         	 test_fantome_position=pygame.Rect((fantome_position[0], fantome_position[1] + 5),(30,30))
-         	 if test_fantome_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome_position=(fantome_position[0] , fantome_position[1]+0.001)
-         	 else:
-                  fantome_position=(fantome_position[0] , fantome_position[1] + 5 )
-                  fantome_hitbox=pygame.Rect((fantome_position),(30,30))
+            fantome_position=(fantome_position[0] , fantome_position[1] + 5 )
+            fantome_hitbox=pygame.Rect((fantome_position),(30,30))
 
      elif fantome_position[0]>35 and fantome_position [1]==515:
-         	 test_fantome_position=pygame.Rect((fantome_position[0] - 5, fantome_position[1]),(30,30))
-         	 if test_fantome_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome_position=(fantome_position[0] + 0.001, fantome_position[1])
-         	 else:
-                  fantome_position=(fantome_position[0] - 5 , fantome_position[1] )
-                  fantome_hitbox=pygame.Rect((fantome_position),(30,30))
+            fantome_position=(fantome_position[0] - 5 , fantome_position[1] )
+            fantome_hitbox=pygame.Rect((fantome_position),(30,30))
 
 # déplacement fantome 2:
      if fantome2_position[1]<435 and fantome2_position[0]==115:
-         	 test_fantome2_position=pygame.Rect((fantome2_position[0], fantome2_position[1] + 5),(30,30))
-         	 if test_fantome2_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome2_position=(fantome2_position[0] , fantome2_position[1]+0.001)
-         	 else:
-                  fantome2_position=(fantome2_position[0] , fantome2_position[1] + 5 )
-                  fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
+            fantome2_position=(fantome2_position[0] , fantome2_position[1] + 5 )
+            fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
 
 
      elif fantome2_position[1]>115 and fantome2_position [0]==435:
-         	 test_fantome2_position=pygame.Rect((fantome2_position[0], fantome2_position[1] - 5),(30,30))
-         	 if test_fantome2_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome2_position=(fantome2_position[0] , fantome2_position[1]+0.001)
-         	 else:
-                  fantome2_position=(fantome2_position[0] , fantome2_position[1] - 5 )
-                  fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
+            fantome2_position=(fantome2_position[0] , fantome2_position[1] - 5 )
+            fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
 
 
      elif fantome2_position[0]<435 and fantome2_position [1]==435:
-         	 test_fantome2_position=pygame.Rect((fantome2_position[0] + 5, fantome2_position[1]),(30,30))
-         	 if test_fantome2_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome2_position=(fantome2_position[0] - 0.001, fantome2_position[1])
-         	 else:
-                  fantome2_position=(fantome2_position[0] + 5 , fantome2_position[1] )
-                  fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
+            fantome2_position=(fantome2_position[0] + 5 , fantome2_position[1] )
+            fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
 
      elif fantome2_position[0]>115 and fantome2_position [1]==115:
-         	 test_fantome2_position=pygame.Rect((fantome2_position[0] - 5, fantome2_position[1]),(30,30))
-         	 if test_fantome2_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome2_position=(fantome2_position[0] + 0.001, fantome2_position[1])
-         	 else:
-                  fantome2_position=(fantome2_position[0] - 5 , fantome2_position[1] )
-                  fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
+            fantome2_position=(fantome2_position[0] - 5 , fantome2_position[1] )
+            fantome2_hitbox=pygame.Rect((fantome2_position),(30,30))
 
 # déplacement fantome 3:
      if fantome3_position[1]>195 and fantome3_position [0]==195:
-         	 test_fantome3_position=pygame.Rect((fantome3_position[0], fantome3_position[1] - 5),(30,30))
-         	 if test_fantome3_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome3_position=(fantome3_position[0] , fantome3_position[1]+0.001)
-         	 else:
-                  fantome3_position=(fantome3_position[0] , fantome3_position[1] - 5 )
-                  fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
+            fantome3_position=(fantome3_position[0] , fantome3_position[1] - 5 )
+            fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
 
      elif fantome3_position[0]<355 and fantome3_position [1]==195:
-         	 test_fantome3_position=pygame.Rect((fantome3_position[0] + 5, fantome3_position[1]),(30,30))
-         	 if test_fantome3_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome3_position=(fantome3_position[0] - 0.001, fantome3_position[1])
-         	 else:
-                  fantome3_position=(fantome3_position[0] + 5 , fantome3_position[1] )
-                  fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
+            fantome3_position=(fantome3_position[0] + 5 , fantome3_position[1] )
+            fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
 
      elif fantome3_position[1]<355 and fantome3_position[0]==355:
-         	 test_fantome3_position=pygame.Rect((fantome3_position[0], fantome3_position[1] + 5),(30,30))
-         	 if test_fantome3_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome3_position=(fantome3_position[0] , fantome3_position[1]+0.001)
-         	 else:
-                  fantome3_position=(fantome3_position[0] , fantome3_position[1] + 5 )
-                  fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
+            fantome3_position=(fantome3_position[0] , fantome3_position[1] + 5 )
+            fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
 
      elif fantome3_position[0]>195 and fantome3_position [1]==355:
-         	 test_fantome3_position=pygame.Rect((fantome3_position[0] - 5, fantome3_position[1]),(30,30))
-         	 if test_fantome3_position.collidelist(hitbox_obstacle)!=-1:
-                   fantome3_position=(fantome3_position[0] + 0.001, fantome3_position[1])
-         	 else:
-                  fantome3_position=(fantome3_position[0] - 5 , fantome3_position[1] )
-                  fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
+            fantome3_position=(fantome3_position[0] - 5 , fantome3_position[1] )
+            fantome3_hitbox=pygame.Rect((fantome3_position),(30,30))
 
     # temps qui permet d'afficher la bombe puis la faire exploser 3sec apres puis le feu qui dure 3 secondes
 
@@ -451,26 +405,26 @@ while continuer:
         afficher=False
         bush_position=(520,520)
         bush_hitbox=pygame.Rect((bush_position),(30,30))
-        cri_bush.play()
+        #cri_bush.play()
      if feu_rect_vertical.colliderect(bush_hitbox) and afficher:
         points1+=1
         afficher=False
         bush_position=(520,520)
         bush_hitbox=pygame.Rect((bush_position),(30,30))
-        cri_bush.play()
+        #cri_bush.play()
 
      if feu_rect_horizontal.colliderect(oussama_hitbox) and afficher:
         points2+=1
         afficher=False
         oussama_position=(30,30)
         oussama_hitbox=pygame.Rect((oussama_position), (30,30))
-        cri_oussama.play()
+        #cri_oussama.play()
      if feu_rect_vertical.colliderect(oussama_hitbox)and afficher:
         points2+=1
         afficher=False
         oussama_position=(30,30)
         oussama_hitbox=pygame.Rect((oussama_position), (30,30))
-        cri_oussama.play()
+        #cri_oussama.play()
 
 
 
@@ -479,26 +433,26 @@ while continuer:
         afficher2=False
         bush_position=(520,520)
         bush_hitbox=pygame.Rect((bush_position),(30,30))
-        cri_bush.play()
+        #cri_bush.play()
      if feu_rect_vertical2.colliderect(bush_hitbox) and afficher2:
         points1+=1
         afficher2=False
         bush_position=(520,520)
         bush_hitbox=pygame.Rect((bush_position),(30,30))
-        cri_bush.play()
+        #cri_bush.play()
 
      if feu_rect_horizontal2.colliderect(oussama_hitbox) and afficher2:
         points2+=1
         afficher2=False
         oussama_position=(30,30)
         oussama_hitbox=pygame.Rect((oussama_position), (30,30))
-        cri_oussama.play()
+        #cri_oussama.play()
      if feu_rect_vertical2.colliderect(oussama_hitbox)and afficher2:
         points2+=1
         afficher2=False
         oussama_position=(30,30)
         oussama_hitbox=pygame.Rect((oussama_position), (30,30))
-        cri_oussama.play()
+        #cri_oussama.play()
 
 
      if fantome_hitbox.colliderect(bush_hitbox) or fantome2_hitbox.colliderect(bush_hitbox) or fantome3_hitbox.colliderect(bush_hitbox):
@@ -507,14 +461,14 @@ while continuer:
         bush_position=(520,520)
         fantome_position=(35,515)
         bush_hitbox=pygame.Rect((bush_position),(30,30))
-        cri_bush.play()
+        #cri_bush.play()
      if fantome_hitbox.colliderect(oussama_hitbox) or fantome2_hitbox.colliderect(oussama_hitbox) or fantome3_hitbox.colliderect(oussama_hitbox):
         points2+=1
         afficher=False
         oussama_position=(30,30)
         fantome_position=(35,515)
         oussama_hitbox=pygame.Rect((oussama_position),(30,30))
-        cri_oussama.play()
+        #cri_oussama.play()
 
      if points1==5:
         dessiner()
